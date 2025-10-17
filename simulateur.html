@@ -1,151 +1,323 @@
-<!-- SIMULATEUR CABO NEGRO -->
-<section id="simulateur" class="section-accent" style="padding:64px 16px">
-  <div class="container reveal">
-    <h2 style="font-size:clamp(1.8rem,3.6vw,2.4rem);margin-bottom:8px">Simulateur de prix – Conciergerie Cabo Negro</h2>
-    <p style="opacity:.9;max-width:860px">Estimez un tarif de nuitée et un revenu mensuel selon le type de bien, la saison et la proximité plage/golf. Les valeurs sont indicatives et s’alignent sur les fourchettes marché actuelles.</p>
+<!-- ===================== SIMULATEUR CABO NEGRO (Autonome) ===================== -->
+<section id="simulateur-ccn" aria-labelledby="sim-title">
+  <!-- ========== STYLES ========== -->
+  <style>
+    /* ---------- Thème ---------- */
+    :root{
+      --ccn-teal:#3AAFA9;       /* turquoise */
+      --ccn-night:#0E2E3A;      /* bleu nuit */
+      --ccn-gold:#C2A661;       /* doré */
+      --ccn-beige:#EBDCC2;      /* beige clair */
+      --ccn-ink:#0E2E3A;
+      --ccn-ink-2:#2D4A56;
+      --ccn-bg:#FBFAF6;
+      --ccn-shadow: 0 18px 40px rgba(14,46,58,.08);
+    }
+    #simulateur-ccn{
+      background:var(--ccn-beige);
+      padding: clamp(48px, 6vw, 88px) 16px;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Inter, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--ccn-ink);
+    }
+    #simulateur-ccn .container{
+      max-width: 1100px; margin: 0 auto;
+    }
+    /* ---------- Titre / Intro ---------- */
+    #simulateur-ccn .sim-head{
+      display:flex; align-items:center; gap:14px; margin-bottom:8px;
+    }
+    #simulateur-ccn .sim-logo{
+      width:42px; aspect-ratio:1/1; border-radius:12px;
+      background: radial-gradient(60% 60% at 30% 30%, #3AAFA9 0%, #157D84 100%);
+      display:grid; place-items:center; color:white; font-weight:700;
+      box-shadow: 0 10px 28px rgba(0,0,0,.10);
+    }
+    #simulateur-ccn h2{
+      margin:0; font-size: clamp(1.9rem,3.8vw,2.6rem);
+      letter-spacing: .2px;
+    }
+    #simulateur-ccn p.lead{
+      margin:0 0 18px; max-width: 880px; opacity:.92;
+    }
 
-    <div class="card" style="margin-top:24px; padding:20px">
-      <form id="ccn-sim" class="grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
-        <label>Type de bien
-          <select name="type">
+    /* ---------- Panneau principal ---------- */
+    .sim-panel{
+      background: linear-gradient(180deg, #fff, #f7f4ee);
+      border:1px solid rgba(0,0,0,.06);
+      border-radius: 24px;
+      padding: clamp(18px, 2vw, 26px);
+      box-shadow: var(--ccn-shadow);
+    }
+
+    /* ---------- Formulaire ---------- */
+    .sim-grid{
+      display:grid; gap:16px;
+      grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+    }
+    .field{display:flex; flex-direction:column; gap:6px;}
+    .field label{font-size:.92rem; opacity:.85}
+    .field select, .field input{
+      appearance:none; -webkit-appearance:none;
+      border:1px solid rgba(0,0,0,.08); border-radius:14px;
+      background:#fff; padding:.85rem 1rem; outline:none;
+      transition: box-shadow .2s ease, transform .1s ease;
+    }
+    .field select:focus, .field input:focus{
+      box-shadow: 0 0 0 3px rgba(58,175,169,.2);
+    }
+
+    /* ---------- Résultats ---------- */
+    .results{
+      display:grid; gap:16px; margin-top:18px;
+      grid-template-columns: repeat(auto-fit,minmax(240px,1fr));
+    }
+    .card{
+      background:#fff; border:1px solid rgba(0,0,0,.06);
+      border-radius:18px; padding:18px; box-shadow: 0 12px 26px rgba(0,0,0,.06);
+      transform: translateY(0); transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .card:hover{ transform: translateY(-4px); box-shadow: 0 18px 34px rgba(0,0,0,.08); }
+    .tag{ display:inline-flex; align-items:center; gap:6px; color:#fff;
+      font-size:.78rem; padding:.22rem .6rem; border-radius:999px; letter-spacing:.2px;}
+    .tag.p{ background:#BB4A4A }   /* pessimiste */
+    .tag.m{ background:#0E2E3A }   /* moyen */
+    .tag.o{ background:#3AAFA9 }   /* optimiste */
+    .card h3{ margin:.35rem 0 .45rem; font-weight:700; font-size:1.05rem;}
+    .big{ font-size: clamp(1.25rem,2.4vw,1.5rem); margin:.1rem 0 .35rem; color:var(--ccn-ink-2)}
+    .muted{ opacity:.72 }
+
+    /* ---------- Micro-animations ---------- */
+    .reveal{ opacity:0; transform:translateY(24px); transition: all .6s cubic-bezier(.2,.6,.2,1) }
+    .reveal.visible{ opacity:1; transform:none }
+    .pulse{ animation: pulse .9s ease }
+    @keyframes pulse { 0%{ transform:scale(1) } 60%{ transform:scale(1.02) } 100%{ transform:scale(1) } }
+
+    /* ---------- CTA / Fine print ---------- */
+    .fine{ font-size:.9rem; margin-top:12px; opacity:.8 }
+    .btn{
+      display:inline-block; background:var(--ccn-teal); color:white;
+      padding:.85rem 1.1rem; border-radius:999px; text-decoration:none; font-weight:600;
+      transition: transform .15s ease, opacity .15s ease;
+    }
+    .btn:hover{ transform: translateY(-2px); opacity:.95 }
+  </style>
+
+  <!-- ========== CONTENU ========== -->
+  <div class="container">
+    <div class="sim-head reveal">
+      <div class="sim-logo">CC</div>
+      <h2 id="sim-title">Simulateur – Conciergerie Cabo Negro</h2>
+    </div>
+    <p class="lead reveal">
+      Estime tes <strong>revenus mensuels & annuels</strong> selon le type de bien, la saison, la proximité plage et le standing de la résidence.
+      Trois scénarios : <em>Pessimiste</em>, <em>Moyen</em>, <em>Optimiste</em>. Les écarts des jours de la semaine sont appliqués automatiquement (pas de sélection).
+    </p>
+
+    <div class="sim-panel reveal" style="margin-top:8px">
+      <!-- Form -->
+      <form id="sim-ccn" class="sim-grid" aria-describedby="sim-note">
+        <div class="field">
+          <label for="f-type">Type de bien</label>
+          <select id="f-type" name="type">
             <option value="studio">Studio / 1 chambre</option>
             <option value="t2">Appartement 2 chambres</option>
             <option value="t3">Appartement 3 chambres</option>
             <option value="villa">Villa</option>
           </select>
-        </label>
+        </div>
 
-        <label>Saison
-          <select name="saison">
+        <div class="field">
+          <label for="f-saison">Saison</label>
+          <select id="f-saison" name="saison">
             <option value="basse">Basse (oct–mai)</option>
             <option value="inter">Intermédiaire (juin & sept)</option>
             <option value="haute">Haute (juil–août & fêtes)</option>
           </select>
-        </label>
+        </div>
 
-        <label>Distance plage
-          <select name="distance">
+        <div class="field">
+          <label for="f-distance">Distance plage</label>
+          <select id="f-distance" name="distance">
             <option value="front">Front de mer (1re ligne)</option>
             <option value="10">≤ 10 min à pied</option>
             <option value="20">10–20 min</option>
             <option value="plus">> 20 min</option>
           </select>
-        </label>
+        </div>
 
-        <label>Vue
-          <select name="vue">
+        <div class="field">
+          <label for="f-vue">Vue</label>
+          <select id="f-vue" name="vue">
             <option value="mer">Vue mer</option>
             <option value="piscine">Piscine / Jardin</option>
             <option value="aucune">Aucune</option>
           </select>
-        </label>
+        </div>
 
-        <label>Résidence
-          <select name="res">
+        <div class="field">
+          <label for="f-res">Résidence</label>
+          <select id="f-res" name="res">
             <option value="prestige">Golf / Prestige</option>
             <option value="std" selected>Résidence standard</option>
           </select>
-        </label>
+        </div>
 
-        <label>Jour de la semaine
-          <select name="jour">
-            <option value="dim">Dimanche</option>
-            <option value="ven">Vendredi</option>
-            <option value="sam">Samedi</option>
-            <option value="autre" selected>Autre jour</option>
-            <option value="jeu">Jeudi</option>
-          </select>
-        </label>
-
-        <label>Commission plateforme
-          <select name="com">
+        <div class="field">
+          <label for="f-com">Commission plateforme</label>
+          <select id="f-com" name="com">
             <option value="0">Vente directe (0%)</option>
             <option value="0.15" selected>Airbnb/Booking (~15%)</option>
             <option value="0.18">Airbnb/Booking (~18%)</option>
           </select>
-        </label>
+        </div>
 
-        <label>Frais ménage/linge (DH)
-          <input type="number" name="frais" value="250" min="0" step="10"/>
-        </label>
+        <div class="field">
+          <label for="f-frais">Frais ménage/linge (DH par séjour)</label>
+          <input id="f-frais" name="frais" type="number" value="250" min="0" step="10" inputmode="numeric">
+        </div>
 
-        <label>Taux d’occupation mensuel
-          <input type="number" name="occ" value="55" min="0" max="100" step="1"/>
-        </label>
+        <div class="field">
+          <label for="f-occ">Occupation base (%) <span class="muted">(scénario moyen)</span></label>
+          <input id="f-occ" name="occ" type="number" value="55" min="0" max="100" step="1" inputmode="numeric">
+        </div>
+
+        <div class="field">
+          <label for="f-stay">Durée moyenne d’un séjour (nuits)</label>
+          <input id="f-stay" name="stay" type="number" value="3" min="1" max="14" step="1" inputmode="numeric">
+        </div>
       </form>
 
-      <div id="ccn-out" class="card" style="margin-top:18px;padding:18px;background:white">
-        <div style="display:flex;gap:12px;align-items:center;margin-bottom:10px">
-          <img src="logo/ccn_transparent.png" alt="CCN" style="height:32px">
-          <strong>Résultat de simulation</strong>
-        </div>
-        <div id="ccn-nuitee" style="font-size:1.4rem;margin-bottom:8px">—</div>
-        <div id="ccn-month">—</div>
-        <small style="opacity:.7">* Prix indiqués en dirhams (MAD). Ajustements selon offres concurrentes et événements locaux.</small>
+      <!-- Résultats -->
+      <div class="results" id="sim-results" style="margin-top:18px">
+        <article class="card" aria-live="polite">
+          <span class="tag p">Pessimiste</span>
+          <h3>Tarif conseillé (nuit)</h3>
+          <div id="p-price" class="big">—</div>
+          <div id="p-month">—</div>
+          <div id="p-year" class="muted">—</div>
+        </article>
+
+        <article class="card" aria-live="polite">
+          <span class="tag m">Moyen</span>
+          <h3>Tarif conseillé (nuit)</h3>
+          <div id="m-price" class="big">—</div>
+          <div id="m-month">—</div>
+          <div id="m-year" class="muted">—</div>
+        </article>
+
+        <article class="card" aria-live="polite">
+          <span class="tag o">Optimiste</span>
+          <h3>Tarif conseillé (nuit)</h3>
+          <div id="o-price" class="big">—</div>
+          <div id="o-month">—</div>
+          <div id="o-year" class="muted">—</div>
+        </article>
       </div>
+
+      <p id="sim-note" class="fine">* Effet « jours de semaine » appliqué automatiquement (dim/WE plus chers, jeudi plus bas). Estimations indicatives.</p>
     </div>
   </div>
+
+  <!-- ========== SCRIPTS ========== -->
+  <script>
+    (function(){
+      // --- Utilitaires ---
+      const DH = v => Math.round(v/10)*10;                 // arrondi au 10 DH
+      const clamp = (v, a, b) => Math.max(a, Math.min(b,v));
+      const $ = s => document.querySelector(s);
+
+      // --- Bornes de prix par saison & type (Cabo Negro) ---
+      // Ajuste ici pour calibrer par résidence si besoin.
+      const BASE = {
+        studio: { basse:[250,600], inter:[400,900],  haute:[700,1500] },
+        t2:     { basse:[350,700], inter:[500,1100], haute:[900,1900] },
+        t3:     { basse:[450,900], inter:[700,1400], haute:[1200,2400] },
+        villa:  { basse:[800,2500], inter:[1200,3500], haute:[1500,6000] }
+      };
+
+      // --- Facteurs multiplicatifs ---
+      const MULTS = {
+        distance: { front:1.20, "10":1.10, "20":1.00, plus:0.90 },
+        vue: { mer:1.15, piscine:1.05, aucune:1.00 },
+        res: { prestige:1.15, std:1.00 }
+      };
+
+      // Pondération moyenne “jours de semaine”
+      // (dim 1j ×1.10 + ven/sam 2j ×1.05 + jeu 1j ×0.95 + autres 3j ×1) / 7 ≈ +2.14 %
+      const WEEKDAY_FACTOR = (1*1.10 + 2*1.05 + 1*0.95 + 3*1.00) / 7;
+
+      // --- DOM ---
+      const form = $("#sim-ccn");
+      const nodes = {
+        pPrice: $("#p-price"), pMonth: $("#p-month"), pYear: $("#p-year"),
+        mPrice: $("#m-price"), mMonth: $("#m-month"), mYear: $("#m-year"),
+        oPrice: $("#o-price"), oMonth: $("#o-month"), oYear: $("#o-year"),
+      };
+
+      // --- Moteur de calcul ---
+      function quantile(range, q){ return range[0] + (range[1]-range[0]) * q; }
+
+      function compute(){
+        const f = Object.fromEntries(new FormData(form).entries());
+
+        // 1) Niveaux de base par saison/type (3 quantiles)
+        const r = BASE[f.type][f.saison];
+        let pP = quantile(r, .25), pM = quantile(r, .55), pO = quantile(r, .85);
+
+        // 2) Multis emplacement/standing + effet jours
+        const m = MULTS.distance[f.distance] * MULTS.vue[f.vue] * MULTS.res[f.res] * WEEKDAY_FACTOR;
+        pP*=m; pM*=m; pO*=m;
+
+        // 3) Commission (on remonte le prix public pour compenser la retenue)
+        const com = parseFloat(f.com || 0);
+        if(com>0){ pP/=(1-com); pM/=(1-com); pO/=(1-com); }
+
+        // 4) Arrondi
+        pP=DH(pP); pM=DH(pM); pO=DH(pO);
+
+        // 5) Occupation : base pour "moyen", +/-10 pts pour pess/opt
+        const occM = clamp(parseFloat(f.occ||0), 0, 95);
+        const occP = clamp(occM - 10, 0, 95);
+        const occO = clamp(occM + 10, 0, 95);
+
+        // 6) Revenus mensuels/annuels (frais ménage par séjour; séjour moyen paramétrable)
+        const stay = clamp(parseInt(f.stay||3,10), 1, 14);
+        function monthly(price, occ){
+          const nights = 30 * (occ/100);
+          const stays  = Math.max(1, nights / stay);
+          const frais  = parseFloat(f.frais||0) * stays;
+          return DH(nights * price - frais);
+        }
+        const mP = monthly(pP,occP), mM = monthly(pM,occM), mO = monthly(pO,occO);
+        const yP = DH(mP*12),        yM = DH(mM*12),        yO = DH(mO*12);
+
+        // 7) Sortie + micro-anim
+        nodes.pPrice.textContent = `${pP.toLocaleString('fr-MA')} DH`;
+        nodes.mPrice.textContent = `${pM.toLocaleString('fr-MA')} DH`;
+        nodes.oPrice.textContent = `${pO.toLocaleString('fr-MA')} DH`;
+        nodes.pMonth.textContent = `Revenu / mois : ${mP.toLocaleString('fr-MA')} DH (occ. ${occP}%)`;
+        nodes.mMonth.textContent = `Revenu / mois : ${mM.toLocaleString('fr-MA')} DH (occ. ${occM}%)`;
+        nodes.oMonth.textContent = `Revenu / mois : ${mO.toLocaleString('fr-MA')} DH (occ. ${occO}%)`;
+        nodes.pYear.textContent = `≈ ${yP.toLocaleString('fr-MA')} DH / an`;
+        nodes.mYear.textContent = `≈ ${yM.toLocaleString('fr-MA')} DH / an`;
+        nodes.oYear.textContent = `≈ ${yO.toLocaleString('fr-MA')} DH / an`;
+
+        document.querySelectorAll('#sim-results .card').forEach(c=>{
+          c.classList.remove('pulse'); void c.offsetWidth; c.classList.add('pulse');
+        });
+      }
+
+      // --- Animations d’apparition ---
+      const io = new IntersectionObserver((es)=>{
+        es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target);} });
+      }, { threshold:.14 });
+      document.querySelectorAll('#simulateur-ccn .reveal').forEach(el=>io.observe(el));
+
+      // --- Écoutes & init ---
+      form.addEventListener('input', compute);
+      document.addEventListener('DOMContentLoaded', compute);
+      compute();
+    })();
+  </script>
 </section>
-
-<script>
-(function(){
-  const DH = v => Math.round(v/10)*10; // arrondi 10 DH
-  const base = {
-    // min et max par type+saison (MAD / nuit)
-    studio: { basse:[250,600], inter:[400,900], haute:[700,1500] },
-    t2:     { basse:[350,700], inter:[500,1100], haute:[900,1900] },
-    t3:     { basse:[450,900], inter:[700,1400], haute:[1200,2400] },
-    villa:  { basse:[800,2500], inter:[1200,3500], haute:[1500,6000] }
-  };
-
-  const mults = {
-    distance: { front:1.20, "10":1.10, "20":1.00, plus:0.90 },
-    vue: { mer:1.15, piscine:1.05, aucune:1.00 },
-    res: { prestige:1.15, std:1.00 },
-    jour: { dim:1.10, ven:1.05, sam:1.05, autre:1.00, jeu:0.95 }
-  };
-
-  const $ = s => document.querySelector(s);
-  const form = $('#ccn-sim');
-  const outN = $('#ccn-nuitee');
-  const outM = $('#ccn-month');
-
-  function lerp(a,b,t){ return a+(b-a)*t; }
-  function mid([a,b]){ return lerp(a,b,0.55); } // légèrement au-dessus du milieu
-
-  function compute(){
-    const f = Object.fromEntries(new FormData(form).entries());
-    const b = mid(base[f.type][f.saison]);
-
-    // multiplicateurs cumulés
-    let price = b * mults.distance[f.distance] * mults.vue[f.vue] * mults.res[f.res] * mults.jour[f.jour];
-
-    // applique commission (on remonte le prix public pour compenser)
-    const commission = parseFloat(f.com||0);
-    if(commission>0){ price = price / (1-commission); }
-
-    // nuitee recommandée
-    const nuit = DH(price);
-
-    // revenu mensuel estimé (occupation %, frais ménage par séjour moyen 3 nuits)
-    const occ = Math.max(0, Math.min(100, parseFloat(f.occ||0)));
-    const nuitsMois = 30 * (occ/100);
-    const sejours = Math.max(1, nuitsMois/3);
-    const frais = parseFloat(f.frais||0) * sejours;
-
-    const revenu = DH(nuitsMois * nuit - frais);
-
-    outN.textContent = `Tarif conseillé : ${nuit.toLocaleString('fr-MA')} DH / nuit`;
-    outM.textContent = `Revenu net estimé / mois : ${revenu.toLocaleString('fr-MA')} DH (occ. ${occ}%, frais ${Math.round(frais)} DH)`;
-
-    // petite animation
-    outN.style.transition = outM.style.transition = 'transform .25s ease';
-    outN.style.transform = outM.style.transform = 'scale(1.02)';
-    setTimeout(()=>{ outN.style.transform = outM.style.transform = 'scale(1)'; }, 220);
-  }
-
-  form.addEventListener('input', compute);
-  document.addEventListener('DOMContentLoaded', compute);
-  compute();
-})();
-</script>
+<!-- ================== FIN SIMULATEUR CABO NEGRO (Autonome) ================== -->
